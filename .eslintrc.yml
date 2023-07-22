@@ -1,0 +1,16 @@
+env:
+  node: true
+  es2021: true
+  "jest": true
+extends:
+  - airbnb-base
+  - 'plugin:import/recommended'
+parserOptions:
+  ecmaVersion: latest
+  sourceType: module
+rules: 
+  no-console: 0
+  import/extensions:
+    - error
+    - ignorePackages
+    - js: always
