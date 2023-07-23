@@ -1,4 +1,5 @@
 import '../scss/styles.scss';
-import * as bootstrap from 'bootstrap';
+import 'bootstrap';
+import app from './app.js';
 
-console.log('aboba@!');
+app();
