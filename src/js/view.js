@@ -1,5 +1,5 @@
 import onChange from 'on-change';
-import { renderFeedback } from './render.js';
+import { renderFeedback, renderCard } from './render.js';
 
 export default (elements, state, inst) => {
   const handleProcessState = (processState) => {
@@ -34,6 +34,10 @@ export default (elements, state, inst) => {
       case 'form.processState':
         handleProcessState(value);
         break;
+      case 'feeds':
+        renderCard(elements, state, value, inst);
+      case 'cards':
+        renderCard(elements, state, value, inst);
       default:
         break;
     }

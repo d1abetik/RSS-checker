@@ -1,6 +1,9 @@
 import * as yup from 'yup';
 import view from './view';
 import i18next from 'i18next';
+import axios from 'axios';
+import parserXml from './parser.js';
+import { uniqueId } from 'lodash';
 
 const validateUrl = (url, urls) => {
   
@@ -40,6 +43,7 @@ export default () => {
       error: null,
     },
     feeds: [],
+    cards: [],
   }
 
   const elements = {
@@ -59,17 +63,38 @@ export default () => {
     const existUrls = state.feeds.map((url) => url);
     const url = formData.get('url');
     watchedState.form.error = '';
-    console.log(formData)
-    console.log(url)
 
     validateUrl(url, existUrls)
-    .then(() => {
-      watchedState.feeds.push(url);
-      watchedState.form.processState = 'sending';
+      .then((url) => {
+        // watchedState.feeds.push(url);
+        const proxifyUrl = (url) => {
+          const newUrl = new URL('https://allorigins.hexlet.app');
+          newUrl.pathname = '/get';
+          newUrl.searchParams.set('disableCache', 'true');
+          newUrl.searchParams.set('url', url);
+          return newUrl;
+        };
+        axios.get(proxifyUrl(url))
+        .then(data => {
+          const tree = parserXml(data.data.contents);
+          console.log(tree);
+          const title = tree.querySelector('title');
+          const description = tree.querySelector('description');
+          const url = tree.querySelector('link');
+          const feedId = uniqueId();
+          watchedState.feeds.push({ title, description, feedId, url });
+          const items = tree.querySelectorAll('item');
+          items.forEach((item) => {
+            const titleCard = item.querySelector('title');
+            const link = item.querySelector('link');
+            watchedState.cards.push({ titleCard, link, feedId });
+          });
+        });
+        watchedState.form.processState = 'sending';
       return;
     }).catch((err) => {
       watchedState.form.error = err;
       watchedState.form.processState = 'error';
-    })
+    });
   });
 };
