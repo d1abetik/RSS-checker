@@ -1,7 +1,7 @@
-import onChange from 'on-change';
-import { renderFeedback, renderCard } from './render.js';
+import { renderFeedback, renderContainer } from './render.js';
 
-export default (elements, state, inst) => {
+export default (elements, state, inst) => (path, value) => {
+  console.log(path, value);
   const handleProcessState = (processState) => {
     switch (processState) {
       case 'error':
@@ -15,7 +15,6 @@ export default (elements, state, inst) => {
         renderFeedback(elements, state, state.form.error, inst);
         elements.submit.disabled = true;
         elements.input.disabled = true;
-        watchedState.form.processState = 'success';
         break;
         
       case 'success':
@@ -29,17 +28,17 @@ export default (elements, state, inst) => {
         throw new Error('Unknown process');
     }
   };
-  const watchedState = onChange(state, (path, value) => {
+  const render = () => {
     switch (path) {
       case 'form.processState':
         handleProcessState(value);
         break;
       case 'feeds':
       case 'cards':
-        renderCard(elements, state, value, inst, path);
+        renderContainer(elements, state, value, inst, path);
       default:
         break;
     }
-  });
-  return watchedState;
+  };
+  return render;
 };

@@ -65,7 +65,7 @@ const renderList = (list) => {
   return itemEl;
 };
 
-export const renderCard = (elements, state, value, inst, path) => {
+export const renderContainer = (elements, state, value, inst, path) => {
   if (value.length === 0) {
     return;
   }

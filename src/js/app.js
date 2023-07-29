@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import axios from 'axios';
 import parserXml from './parser.js';
 import { uniqueId } from 'lodash';
+import onChange from 'on-change';
 
 const validateUrl = (url, urls) => {
   const schema = yup.string().url().required().notOneOf(urls);
@@ -34,61 +35,65 @@ export default () => {
         }
       }
     }
-  });
-
-  const state = {
-    form: {
-      processState: null,
-      error: null,
-    },
-    feeds: [],
-    cards: [],
-    formId: '',
-  }
-
-  const proxifyUrl = (url) => {
-    const newUrl = new URL('https://allorigins.hexlet.app');
-    newUrl.pathname = '/get';
-    newUrl.searchParams.set('disableCache', 'true');
-    newUrl.searchParams.set('url', url);
-    return newUrl;
-  };
-
-  const elements = {
-    form: document.querySelector('.rss-form'),
-    input: document.querySelector('[id="url-input"]'),
-    submit: document.querySelector('[aria-label="add"]'),
-    feedbackEl: document.querySelector('.feedback'),
-    postsContainer: document.querySelector('.posts'),
-    feedsContainer: document.querySelector('.feeds'),
-  }
+  }).then(() => {
+    const state = {
+      form: {
+        processState: null,
+        error: null,
+      },
+      feeds: [],
+      cards: [],
+      formId: '',
+    }
   
-  const watchedState = view(elements, state, instance);
-
-  elements.form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const existUrls = watchedState.feeds.map(({ url }) => url);
-    const formData = new FormData(e.target);
-    const url = formData.get('url');
-    watchedState.form.error = '';
-
-    validateUrl(url, existUrls)
-      .then((url) => {
-        watchedState.form.processState = 'sending';
-        axios.get(proxifyUrl(url)).then((data) => {
-          const tree = parserXml(data.data.contents);
-          const { feeds, posts } = tree;
-          const feedId = uniqueId();
-          console.log(posts)
-          watchedState.feeds.push({ url, feedId, ...feeds });
-          watchedState.cards.push(...posts.map((post) => ({
-            feedId, ...post })));
-          watchedState.form.processState = 'success';
-        });
-      return;
-    }).catch((err) => {
-      watchedState.form.error = err;
-      watchedState.form.processState = 'error';
+    const proxifyUrl = (url) => {
+      const newUrl = new URL('https://allorigins.hexlet.app');
+      newUrl.pathname = '/get';
+      newUrl.searchParams.set('disableCache', 'true');
+      newUrl.searchParams.set('url', url);
+      return newUrl;
+    };
+  
+    const elements = {
+      form: document.querySelector('.rss-form'),
+      input: document.querySelector('[id="url-input"]'),
+      submit: document.querySelector('[aria-label="add"]'),
+      feedbackEl: document.querySelector('.feedback'),
+      postsContainer: document.querySelector('.posts'),
+      feedsContainer: document.querySelector('.feeds'),
+    }
+    
+    const watchedState = onChange(state, view(elements, state, instance));
+  
+    elements.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const existUrls = watchedState.feeds.map(({ url }) => url);
+      const formData = new FormData(e.target);
+      const url = formData.get('url');
+      watchedState.form.error = '';
+  
+      validateUrl(url, existUrls)
+        .then((url) => {
+          watchedState.form.processState = 'sending';
+          axios.get(proxifyUrl(url)).then((data) => {
+            const tree = parserXml(data.data.contents);
+            const { feeds, posts } = tree;
+            const feedId = uniqueId();
+            // console.log(posts)
+            watchedState.feeds.push({ url, feedId, ...feeds });
+            watchedState.cards.push(...posts.map((post) => ({
+              feedId, ...post })));
+            watchedState.form.processState = 'success';
+          });
+        return;
+      }).catch((err) => {
+        watchedState.form.error = err;
+        watchedState.form.processState = 'error';
+        return;
+      });
     });
+  }).catch((errorState) => {
+    console.log(errorState);
+    throw new Error(errorState);
   });
 };
