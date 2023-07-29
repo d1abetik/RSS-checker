@@ -21,25 +21,27 @@ const clearFeedback = (elements) => {
 };
 
 const renderFeed = (feeds) => {
-  const itemElem = feeds.map(({ title, description }) => {
-    const li = document.createElement('li')
+  const itemElem = feeds.map(({ url, feedId, title, description }) => {
+    const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
-    const h3Li = document.createElement('h3')
+    const h3Li = document.createElement('h3');
     h3Li.classList.add('h6', 'm-0');
-    const p = document.createElement('p')
+    const p = document.createElement('p');
     p.classList.add('m-0', 'small', 'text-black-50');
     
     h3Li.textContent = title;
     p.textContent = description;
-    li.append(p, h3Li);
+    li.append(h3Li, p);
+    return li;
   });
   return itemElem;
 };
 
 const renderList = (list) => {
-  const itemEl = list.map(({ title, link, feedId }) => {
-    const li = document.createElement('li') // нужен фикс
+  const itemEl = list.map(({ feedId, title, description, link }) => {
+    const li = document.createElement('li')
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+
     const a = document.createElement('a')
     a.classList.add('fw-bold');
     a.setAttribute('href', `${link}`);
@@ -51,49 +53,60 @@ const renderList = (list) => {
     const button = document.createElement('button')
     button.classList.add('fw-normal');
     button.setAttribute('href', `${link}`);
-    button.setAttribute('data-id', `${id}`);
+    button.setAttribute('data-id', `${feedId}`);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
     button.textContent = 'Отправить';
     
     li.append(a, button);
+    return li;
   });
 
-  return itemEl
+  return itemEl;
 };
 
 export const renderCard = (elements, state, value, inst, path) => {
   if (value.length === 0) {
     return;
   }
+  
+  const ul = document.createElement('ul')
+  ul.classList.add('list-group', 'border-0', 'rounded-0');
+
+  const divMain = document.createElement('div');
+  divMain.classList.add('card', 'border-0');
+
+  const cardBody = document.createElement('div')
+  cardBody.classList.add('card-body');
 
   if (path === 'feeds') {
-    const feeds = renderFeed(state.feeds);
-    const divFeed = document.createElement('div')
-    divFeed.classList.add('card', 'border-0');
-    const divFeedBody = document.createElement('div')
-    divFeedBody.classList.add('card-title', 'h4')
+    const feeds = renderFeed(value);
+
+    const divFeedBody = document.createElement('div');
+    divFeedBody.classList.add('card-title', 'h4');
     divFeedBody.textContent = 'Фиды';
-    const ul = document.createElement('ul')
-    ul.classList.add('list-group', 'border-0', 'rounded-0');
-    ul.append(feeds);
+
+    feeds.map((feed) => {
+      ul.append(feed);
+    });
+
     divFeedBody.append(ul);
-    divFeed.append(divFeedBody);
-    elements.feedsContainer.append(divFeed);
+    divMain.append(divFeedBody);
+    elements.feedsContainer.append(divMain);
   } else {
-    console.log('stateCards', state.cards)
+    console.log(value);
     const cards = renderList(state.cards);
-    const divCard = document.createElement('div').classList.add('card', 'border-0');
-    const cardBody = document.createElement('div').classList.add('card-body');
     const h2 = document.createElement('h2')
     h2.className = 'card-title h4';
-    const ulCards = document.createElement('ul').classList.add('list-group', 'border-0', 'rounded-0');
   
-    console.log(cards)
-    ulCards.append(cards);
-    cardBody.append(ulCards);
-    divCard.append(cardBody);
-    elements.postsContainer.append(divCard);
+    console.log(cards);
+    cards.map((card) => {
+      ul.append(card);
+    });
+    // ulCards.append(cards);
+    cardBody.append(ul);
+    divMain.append(cardBody);
+    elements.postsContainer.append(divMain);
   }
 };
 
