@@ -6,7 +6,6 @@ import parserXml from './parser.js';
 import { uniqueId } from 'lodash';
 
 const validateUrl = (url, urls) => {
-  
   const schema = yup.string().url().required().notOneOf(urls);
   return schema.validate(url);
 };
@@ -44,7 +43,16 @@ export default () => {
     },
     feeds: [],
     cards: [],
+    formId: '',
   }
+
+  const proxifyUrl = (url) => {
+    const newUrl = new URL('https://allorigins.hexlet.app');
+    newUrl.pathname = '/get';
+    newUrl.searchParams.set('disableCache', 'true');
+    newUrl.searchParams.set('url', url);
+    return newUrl;
+  };
 
   const elements = {
     form: document.querySelector('.rss-form'),
@@ -59,38 +67,24 @@ export default () => {
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
+    const existUrls = watchedState.feeds.map(({ url }) => url);
     const formData = new FormData(e.target);
-    const existUrls = state.feeds.map((url) => url);
     const url = formData.get('url');
     watchedState.form.error = '';
 
     validateUrl(url, existUrls)
       .then((url) => {
-        // watchedState.feeds.push(url);
-        const proxifyUrl = (url) => {
-          const newUrl = new URL('https://allorigins.hexlet.app');
-          newUrl.pathname = '/get';
-          newUrl.searchParams.set('disableCache', 'true');
-          newUrl.searchParams.set('url', url);
-          return newUrl;
-        };
-        axios.get(proxifyUrl(url))
-        .then(data => {
-          const tree = parserXml(data.data.contents);
-          console.log(tree);
-          const title = tree.querySelector('title');
-          const description = tree.querySelector('description');
-          const url = tree.querySelector('link');
-          const feedId = uniqueId();
-          watchedState.feeds.push({ title, description, feedId, url });
-          const items = tree.querySelectorAll('item');
-          items.forEach((item) => {
-            const titleCard = item.querySelector('title');
-            const link = item.querySelector('link');
-            watchedState.cards.push({ titleCard, link, feedId });
-          });
-        });
         watchedState.form.processState = 'sending';
+        axios.get(proxifyUrl(url)).then((data) => {
+          const tree = parserXml(data.data.contents);
+          const { feeds, posts } = tree;
+          const feedId = uniqueId();
+          console.log(posts)
+          watchedState.feeds.push({ url, feedId, ...feeds });
+          watchedState.cards.push(...posts.map((post) => ({
+            feedId, ...post })));
+          watchedState.form.processState = 'success';
+        });
       return;
     }).catch((err) => {
       watchedState.form.error = err;

@@ -35,9 +35,8 @@ export default (elements, state, inst) => {
         handleProcessState(value);
         break;
       case 'feeds':
-        renderCard(elements, state, value, inst);
       case 'cards':
-        renderCard(elements, state, value, inst);
+        renderCard(elements, state, value, inst, path);
       default:
         break;
     }
