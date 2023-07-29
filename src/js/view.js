@@ -1,7 +1,6 @@
 import { renderFeedback, renderContainer } from './render.js';
 
 export default (elements, state, inst) => (path, value) => {
-  console.log(path, value);
   const handleProcessState = (processState) => {
     switch (processState) {
       case 'error':
@@ -40,5 +39,5 @@ export default (elements, state, inst) => (path, value) => {
         break;
     }
   };
-  return render;
+  return render();
 };

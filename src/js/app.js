@@ -79,13 +79,12 @@ export default () => {
             const tree = parserXml(data.data.contents);
             const { feeds, posts } = tree;
             const feedId = uniqueId();
-            // console.log(posts)
             watchedState.feeds.push({ url, feedId, ...feeds });
             watchedState.cards.push(...posts.map((post) => ({
               feedId, ...post })));
             watchedState.form.processState = 'success';
           });
-        return;
+        // return;
       }).catch((err) => {
         watchedState.form.error = err;
         watchedState.form.processState = 'error';
