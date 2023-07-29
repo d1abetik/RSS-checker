@@ -35,6 +35,7 @@ export default (elements, state, inst) => (path, value) => {
       case 'feeds':
       case 'cards':
         renderContainer(elements, state, value, inst, path);
+        break;
       default:
         break;
     }

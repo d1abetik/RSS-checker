@@ -3,7 +3,7 @@ import view from './view';
 import i18next from 'i18next';
 import axios from 'axios';
 import parserXml from './parser.js';
-import { uniqueId } from 'lodash';
+import { uniqueId, has } from 'lodash';
 import onChange from 'on-change';
 
 const validateUrl = (url, urls) => {
@@ -31,7 +31,9 @@ export default () => {
           "err_emptyFiled": "Поле должно быть заполненым",
           "err_invalidUrl": "Ссылка должна быть валидной",
           "err_existRss": "RSS уже существует",
-          "success": "RSS успешно сформирован"
+          "success": "RSS успешно сформирован",
+          "button": "Отправить",
+          "feeds": "Фиды",
         }
       }
     }
@@ -70,7 +72,7 @@ export default () => {
       const existUrls = watchedState.feeds.map(({ url }) => url);
       const formData = new FormData(e.target);
       const url = formData.get('url');
-      watchedState.form.error = '';
+      watchedState.form.error = null;
   
       validateUrl(url, existUrls)
         .then((url) => {
@@ -81,10 +83,10 @@ export default () => {
             const feedId = uniqueId();
             watchedState.feeds.push({ url, feedId, ...feeds });
             watchedState.cards.push(...posts.map((post) => ({
-              feedId, ...post })));
+              feedId, ...post })
+            ));
             watchedState.form.processState = 'success';
           });
-        // return;
       }).catch((err) => {
         watchedState.form.error = err;
         watchedState.form.processState = 'error';
@@ -93,6 +95,6 @@ export default () => {
     });
   }).catch((errorState) => {
     console.log(errorState);
-    throw new Error(errorState);
+    watchedState.form.processState = 'error';
   });
 };

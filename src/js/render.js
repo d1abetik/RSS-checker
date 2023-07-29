@@ -37,26 +37,27 @@ const renderFeed = (feeds) => {
   return itemElem;
 };
 
-const renderList = (list) => {
+const renderList = (list, inst) => {
   const itemEl = list.map(({ feedId, title, description, link }) => {
     const li = document.createElement('li')
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
     const a = document.createElement('a')
-    a.classList.add('fw-bold');
-    a.setAttribute('href', `${link}`);
-    a.setAttribute('data-id', `${feedId}`);
+    a.classList.add('fw-normal');
+    a.setAttribute('href', link);
+    a.setAttribute('data-id', feedId);
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = title;
 
     const button = document.createElement('button')
-    button.classList.add('fw-normal');
-    button.setAttribute('href', `${link}`);
-    button.setAttribute('data-id', `${feedId}`);
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.setAttribute('type', 'button');
+    button.setAttribute('href', link);
+    button.setAttribute('data-id', feedId);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
-    button.textContent = 'Отправить';
+    button.textContent = inst.t("button");
     
     li.append(a, button);
     return li;
@@ -66,10 +67,6 @@ const renderList = (list) => {
 };
 
 export const renderContainer = (elements, state, value, inst, path) => {
-  if (value.length === 0) {
-    return;
-  }
-  
   const ul = document.createElement('ul')
   ul.classList.add('list-group', 'border-0', 'rounded-0');
 
@@ -80,11 +77,11 @@ export const renderContainer = (elements, state, value, inst, path) => {
   cardBody.classList.add('card-body');
 
   if (path === 'feeds') {
-    const feeds = renderFeed(value);
+    const feeds = renderFeed(value, inst);
 
     const divFeedBody = document.createElement('div');
     divFeedBody.classList.add('card-title', 'h4');
-    divFeedBody.textContent = 'Фиды';
+    divFeedBody.textContent = inst.t('feeds');
 
     feeds.map((feed) => {
       ul.append(feed);
@@ -92,20 +89,20 @@ export const renderContainer = (elements, state, value, inst, path) => {
 
     divFeedBody.append(ul);
     divMain.append(divFeedBody);
+    elements.feedsContainer.textContent = '';
     elements.feedsContainer.append(divMain);
   } else {
-    console.log(value);
-    const cards = renderList(state.cards);
+    const cards = renderList(state.cards, inst);
     const h2 = document.createElement('h2')
     h2.className = 'card-title h4';
   
-    console.log(cards);
     cards.map((card) => {
       ul.append(card);
     });
-    // ulCards.append(cards);
+
     cardBody.append(ul);
     divMain.append(cardBody);
+    elements.postsContainer.textContent = '';
     elements.postsContainer.append(divMain);
   }
 };
