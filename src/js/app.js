@@ -3,12 +3,24 @@ import view from './view';
 import i18next from 'i18next';
 import axios from 'axios';
 import parserXml from './parser.js';
-import { uniqueId, has } from 'lodash';
+import { uniqueId } from 'lodash';
 import onChange from 'on-change';
 
 const validateUrl = (url, urls) => {
-  const schema = yup.string().url().required().notOneOf(urls);
+  const schema = yup.string().required().url().notOneOf(urls);
   return schema.validate(url);
+};
+
+const proxifyUrl = (url) => {
+  const newUrl = new URL('https://allorigins.hexlet.app');
+  newUrl.pathname = '/get';
+  newUrl.searchParams.set('disableCache', 'true');
+  newUrl.searchParams.set('url', url);
+  return newUrl;
+};
+
+const updatePosts = (state) => {
+  
 };
 
 export default () => {
@@ -45,16 +57,10 @@ export default () => {
       },
       feeds: [],
       cards: [],
+      viewedId: [],
       formId: '',
     }
   
-    const proxifyUrl = (url) => {
-      const newUrl = new URL('https://allorigins.hexlet.app');
-      newUrl.pathname = '/get';
-      newUrl.searchParams.set('disableCache', 'true');
-      newUrl.searchParams.set('url', url);
-      return newUrl;
-    };
   
     const elements = {
       form: document.querySelector('.rss-form'),
@@ -82,16 +88,25 @@ export default () => {
             const { feeds, posts } = tree;
             const feedId = uniqueId();
             watchedState.feeds.push({ url, feedId, ...feeds });
-            watchedState.cards.push(...posts.map((post) => ({
-              feedId, ...post })
-            ));
+            watchedState.cards.push(...posts.map((post) => ({ feedId, ...post })));
             watchedState.form.processState = 'success';
+          }).catch((error) => {
+            watchedState.form.error = new Error('err_invalidRss');
+            console.log(error);
+            watchedState.form.processState = 'error';
           });
-      }).catch((err) => {
-        watchedState.form.error = err;
-        watchedState.form.processState = 'error';
-        return;
+        }).catch((err) => {
+          watchedState.form.error = err;
+          watchedState.form.processState = 'error';
+          return;
       });
+      elements.postsContainer.addEventListener('click', (e) => {
+        if (e.target.dataset.id) {
+          const { id } = e.target.dataset;
+          watchedState.viewedId.push(id);
+          watchedState.formId = id;
+        }
+      })
     });
   }).catch((errorState) => {
     console.log(errorState);
