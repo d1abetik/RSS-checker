@@ -1,3 +1,5 @@
+import { find } from 'lodash';
+
 const renderErrors = (elements, error, inst) => {
   elements.input.classList.add('is-invalid');
   elements.feedbackEl.classList.remove('text-success');
@@ -37,15 +39,20 @@ const renderFeed = (feeds) => {
   return itemElem;
 };
 
-const renderList = (list, inst) => {
-  const itemEl = list.map(({ feedId, title, description, link }) => {
+const renderList = (list, inst, state) => {
+  const itemEl = list.map(({ feedId, modalId, title, description, link }) => {
+    const data = state.visitedLinksIds.find((item) => item === modalId);
     const li = document.createElement('li')
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-
+    
     const a = document.createElement('a')
-    a.classList.add('fw-bold');
     a.setAttribute('href', link);
-    a.setAttribute('data-id', feedId);
+    a.setAttribute('data-id', modalId);
+    if (data) {
+      a.className = 'fw-normal link-secondary';
+    } else {
+      a.className = 'fw-bold';
+    }
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = title;
@@ -54,7 +61,7 @@ const renderList = (list, inst) => {
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     button.setAttribute('type', 'button');
     button.setAttribute('href', link);
-    button.setAttribute('data-id', feedId);
+    button.setAttribute('data-id', modalId);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
     button.textContent = inst.t("button");
@@ -69,30 +76,32 @@ const renderList = (list, inst) => {
 export const renderContainer = (elements, state, value, inst, path) => {
   const ul = document.createElement('ul')
   ul.classList.add('list-group', 'border-0', 'rounded-0');
-
+  
   const divMain = document.createElement('div');
   divMain.classList.add('card', 'border-0');
-
+  
   const cardBody = document.createElement('div')
   cardBody.classList.add('card-body');
-
+  
   if (path === 'feeds') {
+    elements.feedsContainer.textContent = '';
     const feeds = renderFeed(value, inst);
-
+    
     const divFeedBody = document.createElement('div');
     divFeedBody.classList.add('card-title', 'h4');
     divFeedBody.textContent = inst.t('feeds');
-
+    
     feeds.map((feed) => {
       ul.append(feed);
     });
-
+    
     divFeedBody.append(ul);
     divMain.append(divFeedBody);
     elements.feedsContainer.textContent = '';
-    elements.feedsContainer.append(divMain);
+    elements.feedsContainer.prepend(divMain);
   } else {
-    const cards = renderList(state.cards, inst);
+    elements.postsContainer.textContent = '';
+    const cards = renderList(state.cards, inst, state);
     const h2 = document.createElement('h2')
     h2.className = 'card-title h4';
   
@@ -103,12 +112,17 @@ export const renderContainer = (elements, state, value, inst, path) => {
     cardBody.append(ul);
     divMain.append(cardBody);
     elements.postsContainer.textContent = '';
-    elements.postsContainer.append(divMain);
+    elements.postsContainer.prepend(divMain);
   }
 };
 
 const renderModal = (elements, state, value) => {
-  
+  const titleById = document.querySelector(`a[data-id="${value}"]`);
+  titleById.className = 'fw-normal link-secondary';
+  const data = state.cards.find((item) => item.modalId === value);
+  elements.modal.title.textContent = data.title;
+  elements.modal.body.textContent = data.description;
+  elements.modal.button.setAttribute('href', data.link);
 };
 
 const handleProcessState = (elements, state, inst, value) => {
@@ -122,18 +136,17 @@ const handleProcessState = (elements, state, inst, value) => {
         break;
         
       case 'sending':
-          clearFeedback(elements);
-          elements.submit.disabled = true;
-          elements.input.disabled = true;
-          break;
-        
+        clearFeedback(elements);
+        elements.submit.disabled = true;
+        elements.input.disabled = true;
+        break;
       case 'success':
-          renderSuccess(elements, inst);
-          elements.form.reset();
-          elements.input.focus();
-          elements.submit.disabled = false;
-          elements.input.disabled = false;
-          break;
+        renderSuccess(elements, inst);
+        elements.form.reset();
+        elements.input.focus();
+        elements.submit.disabled = false;
+        elements.input.disabled = false;
+        break;
       default:
         throw new Error(`Unknown process state: ${value}`);
   }
