@@ -1,5 +1,3 @@
-import { find } from 'lodash';
-
 const renderErrors = (elements, error, inst) => {
   elements.input.classList.add('is-invalid');
   elements.feedbackEl.classList.remove('text-success');
@@ -23,14 +21,14 @@ const clearFeedback = (elements) => {
 };
 
 const renderFeed = (feeds) => {
-  const itemElem = feeds.map(({ url, feedId, title, description }) => {
+  const itemElem = feeds.map(({ title, description }) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
     const h3Li = document.createElement('h3');
     h3Li.classList.add('h6', 'm-0');
     const p = document.createElement('p');
     p.classList.add('m-0', 'small', 'text-black-50');
-    
+
     h3Li.textContent = title;
     p.textContent = description;
     li.append(h3Li, p);
@@ -40,12 +38,12 @@ const renderFeed = (feeds) => {
 };
 
 const renderList = (list, inst, state) => {
-  const itemEl = list.map(({ feedId, modalId, title, description, link }) => {
+  const itemEl = list.map(({ modalId, title, link }) => {
     const data = state.visitedLinksIds.find((item) => item === modalId);
-    const li = document.createElement('li')
+    const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-    
-    const a = document.createElement('a')
+
+    const a = document.createElement('a');
     a.setAttribute('href', link);
     a.setAttribute('data-id', modalId);
     if (data) {
@@ -57,7 +55,7 @@ const renderList = (list, inst, state) => {
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = title;
 
-    const button = document.createElement('button')
+    const button = document.createElement('button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     button.setAttribute('type', 'button');
     button.setAttribute('href', link);
@@ -65,7 +63,7 @@ const renderList = (list, inst, state) => {
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
     button.textContent = inst.t("button");
-    
+
     li.append(a, button);
     return li;
   });
@@ -76,25 +74,25 @@ const renderList = (list, inst, state) => {
 export const renderContainer = (elements, state, value, inst, path) => {
   const ul = document.createElement('ul')
   ul.classList.add('list-group', 'border-0', 'rounded-0');
-  
+
   const divMain = document.createElement('div');
   divMain.classList.add('card', 'border-0');
-  
+
   const cardBody = document.createElement('div')
   cardBody.classList.add('card-body');
-  
+
   if (path === 'feeds') {
     elements.feedsContainer.textContent = '';
     const feeds = renderFeed(value, inst);
-    
+
     const divFeedBody = document.createElement('div');
     divFeedBody.classList.add('card-title', 'h4');
     divFeedBody.textContent = inst.t('feeds');
-    
+
     feeds.map((feed) => {
       ul.append(feed);
     });
-    
+
     divFeedBody.append(ul);
     divMain.append(divFeedBody);
     elements.feedsContainer.textContent = '';
@@ -102,9 +100,9 @@ export const renderContainer = (elements, state, value, inst, path) => {
   } else {
     elements.postsContainer.textContent = '';
     const cards = renderList(state.cards, inst, state);
-    const h2 = document.createElement('h2')
+    const h2 = document.createElement('h2');
     h2.className = 'card-title h4';
-  
+
     cards.map((card) => {
       ul.append(card);
     });
@@ -126,29 +124,28 @@ const renderModal = (elements, state, value) => {
 };
 
 const handleProcessState = (elements, state, inst, value) => {
-    switch (value) {
-      case 'filling':
-        break;
-      case 'error':
-        renderErrors(elements, state.form.error, inst);
-        elements.input.disabled = false;
-        elements.submit.disabled = false;
-        break;
-        
-      case 'sending':
-        clearFeedback(elements);
-        elements.submit.disabled = true;
-        elements.input.disabled = true;
-        break;
-      case 'success':
-        renderSuccess(elements, inst);
-        elements.form.reset();
-        elements.input.focus();
-        elements.submit.disabled = false;
-        elements.input.disabled = false;
-        break;
-      default:
-        throw new Error(`Unknown process state: ${value}`);
+  switch (value) {
+    case 'filling':
+      break;
+    case 'error':
+      renderErrors(elements, state.form.error, inst);
+      elements.input.disabled = false;
+      elements.submit.disabled = false;
+      break;
+    case 'sending':
+      clearFeedback(elements);
+      elements.submit.disabled = true;
+      elements.input.disabled = true;
+      break;
+    case 'success':
+      renderSuccess(elements, inst);
+      elements.form.reset();
+      elements.input.focus();
+      elements.submit.disabled = false;
+      elements.input.disabled = false;
+      break;
+    default:
+      throw new Error(`Unknown process state: ${value}`);
   }
 };
 

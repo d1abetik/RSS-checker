@@ -6,9 +6,9 @@ lint:
 	npx eslint .
 link:
 	sudo npm link
-test:
-	npm test
-test-coverage:
-	npm test -- --coverage --coverageProvider=v8
+# test:
+# 	npm test
+# test-coverage:
+# 	npm test -- --coverage --coverageProvider=v8
 fix:
 	npx eslint . --fix

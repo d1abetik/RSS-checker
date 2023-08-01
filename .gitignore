@@ -5,3 +5,4 @@ node_modules
 /playwright.config.js/
 /tests/
 /tests-examples/
+dist
