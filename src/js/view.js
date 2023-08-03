@@ -83,13 +83,13 @@ export const renderContainer = (elements, state, value, inst, path) => {
 
   if (path === 'feeds') {
     elements.feedsContainer.textContent = '';
-    const feeds = renderFeed(value, inst);
+    const utils = renderFeed(value, inst);
 
     const divFeedBody = document.createElement('div');
     divFeedBody.classList.add('card-title', 'h4');
     divFeedBody.textContent = inst.t('feeds');
 
-    feeds.map((feed) => {
+    utils.map((feed) => {
       ul.append(feed);
       return null;
     });
@@ -100,11 +100,11 @@ export const renderContainer = (elements, state, value, inst, path) => {
     elements.feedsContainer.prepend(divMain);
   } else {
     elements.postsContainer.textContent = '';
-    const cards = renderList(state.cards, inst, state);
+    const utils = renderList(state.cards, inst, state);
     const h2 = document.createElement('h2');
     h2.className = 'card-title h4';
 
-    cards.map((card) => {
+    utils.map((card) => {
       ul.append(card);
       return null;
     });
