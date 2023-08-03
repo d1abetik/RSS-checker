@@ -44,7 +44,7 @@ const updatePosts = (state) => {
 export default () => {
   yup.setLocale({
     string: {
-      url: 'err_invalidUrl'
+      url: 'err_invalidUrl',
     },
     mixed: {
       notOneOf: 'err_existRss',
@@ -126,6 +126,10 @@ export default () => {
             watchedState.form.processState = 'error';
             return;
           });
+        }).catch((error) => {
+          watchedState.form.error = error;
+          watchedState.form.processState = 'error';
+          return;
         });
       elements.postsContainer.addEventListener('click', (event) => {
         if (event.target.dataset.id) {
