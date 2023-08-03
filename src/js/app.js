@@ -58,8 +58,8 @@ export default () => {
     resources: {
       ru: {
         translation: {
-          err_emptyFiled: 'Поле должно быть заполненым',
-          err_invalidUrl: 'Ссылка должна быть валидной',
+          err_emptyFiled: 'Не должно быть пустым',
+          err_invalidUrl: 'Ссылка должна быть валидным URL',
           err_existRss: 'RSS уже существует',
           err_invalidRss: 'Ресурс не содержит валидный RSS',
           success: 'RSS успешно загружен',
