@@ -117,12 +117,8 @@ export default () => {
             })));
             watchedState.form.processState = 'success';
           }).catch((error) => {
-            if (error.isAxiosError) {
-              watchedState.form.error = new Error('err_network');
-            } if (error.isParseError) {
-              watchedState.form.error = new Error('err_invalidRss');
-            }
             console.log(error);
+            watchedState.form.error = new Error('err_invalidRss');
             watchedState.form.processState = 'error';
             return;
           });
