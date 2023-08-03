@@ -62,7 +62,7 @@ export default () => {
           err_invalidUrl: 'Ссылка должна быть валидной',
           err_existRss: 'RSS уже существует',
           err_invalidRss: 'Ресурс не содержит валидный RSS',
-          success: 'RSS успешно сформирован',
+          success: 'RSS успешно загружен',
           button: 'Просмотр',
           feeds: 'Фиды',
           err_network: 'Ошибка сети'
