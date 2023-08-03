@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import axios from 'axios';
+import { isAxiosError } from 'axios';
 import { uniqueId, isEqual } from 'lodash';
 import parserXml from './parser.js';
 import view from './view.js';
@@ -107,20 +108,27 @@ export default () => {
       validateUrl(nowUrl, existUrls)
         .then((url) => {
           watchedState.form.processState = 'sending';
-          axios.get(proxifyUrl(url)).then((data) => {
-            const tree = parserXml(data.data.contents);
-            const { feeds, posts } = tree;
-            const feedId = uniqueId();
-            watchedState.feeds.push({ url, feedId, ...feeds });
-            watchedState.cards.push(...posts.map((post) => ({
-              feedId, modalId: uniqueId(), ...post
-            })));
-            watchedState.form.processState = 'success';
-          }).catch((error) => {
-            console.log(error);
-            watchedState.form.error = new Error('err_invalidRss');
-            watchedState.form.processState = 'error';
-            return;
+          axios.get(proxifyUrl(url))
+            .then((data) => {
+              const tree = parserXml(data.data.contents);
+              const { feeds, posts } = tree;
+              const feedId = uniqueId();
+              watchedState.feeds.push({ url, feedId, ...feeds });
+              watchedState.cards.push(...posts.map((post) => ({
+                feedId, modalId: uniqueId(), ...post
+              })));
+              watchedState.form.processState = 'success';
+            })
+            .catch((error) => {
+              console.log(isAxiosError(error))
+              if (isAxiosError(error)) {
+                watchedState.form.error = new Error('err_network');
+              } else {
+                watchedState.form.error = new Error('err_invalidRss');
+              }
+              console.log(error);
+              watchedState.form.processState = 'error';
+              return;
           });
         }).catch((error) => {
           watchedState.form.error = error;
