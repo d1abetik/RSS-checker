@@ -62,7 +62,7 @@ const renderList = (list, inst, state) => {
     button.setAttribute('data-id', modalId);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
-    button.textContent = inst.t("button");
+    button.textContent = inst.t('button');
 
     li.append(a, button);
     return li;
@@ -72,13 +72,13 @@ const renderList = (list, inst, state) => {
 };
 
 export const renderContainer = (elements, state, value, inst, path) => {
-  const ul = document.createElement('ul')
+  const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
 
   const divMain = document.createElement('div');
   divMain.classList.add('card', 'border-0');
 
-  const cardBody = document.createElement('div')
+  const cardBody = document.createElement('div');
   cardBody.classList.add('card-body');
 
   if (path === 'feeds') {
@@ -91,6 +91,7 @@ export const renderContainer = (elements, state, value, inst, path) => {
 
     feeds.map((feed) => {
       ul.append(feed);
+      return null;
     });
 
     divFeedBody.append(ul);
@@ -105,6 +106,7 @@ export const renderContainer = (elements, state, value, inst, path) => {
 
     cards.map((card) => {
       ul.append(card);
+      return null;
     });
 
     cardBody.append(ul);
