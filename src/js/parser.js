@@ -3,8 +3,10 @@ export default (xml) => {
   const res = parser.parseFromString(xml, 'application/xml');
   const errorNode = res.querySelector('parsererror');
   if (errorNode) {
-    console.log('Failed!');
-    return new Error(errorNode);
+    const error = new Error(errorNode.textContent);
+    error.isParsingError = true;
+    error.data = errorNode.textContent;
+    throw error;
   }
   const feeds = {
     title: res.querySelector('channel title').textContent,
