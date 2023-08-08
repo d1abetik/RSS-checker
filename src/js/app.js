@@ -2,10 +2,10 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import axios from 'axios';
-// import { isAxiosError } from 'axios';
 import { uniqueId, isEqual } from 'lodash';
 import parserXml from './parser.js';
 import view from './view.js';
+import resources from './locales/ru.js';
 
 const validateUrl = (url, urls) => {
   const schema = yup.string().required().url().notOneOf(urls);
@@ -21,6 +21,7 @@ const proxifyUrl = (url) => {
 };
 
 const updatePosts = (state) => {
+  const delay = 500;
   const urls = state.feeds.map(({ url }) => url);
   const linksOld = state.cards.map(({ link }) => link);
   const request = urls.map((currentUrl) => axios.get(proxifyUrl(currentUrl))
@@ -38,7 +39,7 @@ const updatePosts = (state) => {
     }).catch((err) => console.log(err)));
   Promise.all(request)
     .finally(() => {
-      setTimeout(() => updatePosts(state), 500);
+      setTimeout(() => updatePosts(state), delay);
     });
 };
 
@@ -56,20 +57,7 @@ export default () => {
   const instance = i18next.createInstance();
   instance.init({
     lng: defLng,
-    resources: {
-      ru: {
-        translation: {
-          err_emptyFiled: 'Не должно быть пустым',
-          err_invalidUrl: 'Ссылка должна быть валидным URL',
-          err_existRss: 'RSS уже существует',
-          err_invalidRss: 'Ресурс не содержит валидный RSS',
-          success: 'RSS успешно загружен',
-          button: 'Просмотр',
-          feeds: 'Фиды',
-          err_network: 'Ошибка сети',
-        },
-      },
-    },
+    resources,
   }).then(() => {
     const state = {
       form: {
